@@ -1,6 +1,6 @@
 const readlineSync = require('readline-sync');
 
-const health = [10, 20, 30]
+const health = [5, 15, 25]
 
 const monster = {
   maxHealth: 10,
@@ -90,27 +90,27 @@ function battle() {
 
 function attack() {
   decreaseCooldown()
-  let attack = monsterMove()
-  if (monster.moves[attack]["cooldown"] > 0) {
-    monster.moves[attack]["currentCooldown"] = monster.moves[attack]["cooldown"]+1;
+  let monsterAttack = monsterMove()
+  if (monster.moves[monsterAttack]["cooldown"] > 0) {
+    monster.moves[monsterAttack]["currentCooldown"] = monster.moves[monsterAttack]["cooldown"]+1;
   }
   let wizardAttack = wizardMove()
   if (wizard.moves[wizardAttack]["cooldown"] > 0) {
     wizard.moves[wizardAttack]["currentCooldown"] = wizard.moves[wizardAttack]["cooldown"]+1;
   }
-  if (wizard.moves[wizardAttack]["physicArmorPercents"] <= monster.moves[attack]["physicalDmg"]) {
-    wizard.maxHealth = wizard.maxHealth - monster.moves[attack]["physicalDmg"]
+  if (monster.moves[monsterAttack]["physicalDmg"]> 0) {
+    wizard.maxHealth = calculateDamage(wizard.maxHealth, monster.moves[monsterAttack]["physicalDmg"], wizard.moves[wizardAttack]["physicArmorPercents"])
   }
-  if (wizard.moves[wizardAttack]["magicArmorPercents"] <= monster.moves[attack]["magicDmg"]) {
-    wizard.maxHealth = wizard.maxHealth - monster.moves[attack]["magicDmg"]
+  if (monster.moves[monsterAttack]["magicDmg"]> 0) {
+    wizard.maxHealth = calculateDamage(wizard.maxHealth, monster.moves[monsterAttack]["magicDmg"], wizard.moves[wizardAttack]["magicArmorPercents"])
   }
-  if (monster.moves[attack]["magicArmorPercents"] <= wizard.moves[wizardAttack]["magicDmg"]) {
-    monster.maxHealth = monster.maxHealth - wizard.moves[wizardAttack]["magicDmg"]
+  if (wizard.moves[wizardAttack]["physicalDmg"]> 0) {
+    monster.maxHealth = calculateDamage(monster.maxHealth, wizard.moves[wizardAttack]["physicalDmg"], monster.moves[monsterAttack]["physicArmorPercents"])
   }
-  if (monster.moves[attack]["physicArmorPercents"] <= wizard.moves[wizardAttack]["physicalDmg"]) {
-    monster.maxHealth = monster.maxHealth - wizard.moves[wizardAttack]["physicalDmg"]
+  if (wizard.moves[wizardAttack]["magicDmg"]> 0) {
+    monster.maxHealth = calculateDamage(monster.maxHealth, wizard.moves[wizardAttack]["magicDmg"], monster.moves[monsterAttack]["magicArmorPercents"])
   }
-  console.log(`Монстр наносит атаку ${monster.moves[attack].name}`);
+  console.log(`Монстр наносит атаку ${monster.moves[monsterAttack].name}`);
   console.log(`Маг наносит атаку ${wizard.moves[wizardAttack].name}`);
   console.log('Здоровье мага ' + wizard.maxHealth);
   console.log('Здоровье монстра ' + monster.maxHealth);
@@ -145,6 +145,10 @@ const decreaseCooldown = () => {
       move["currentCooldown"]--
     }
   })
+}
+
+const calculateDamage = (health, damage, armor) => {
+  return health - (damage-armor/100*damage)
 }
 
 const wizardHealth = readlineSync.keyInSelect(health, 'Выберите показатель здоровья мага');
