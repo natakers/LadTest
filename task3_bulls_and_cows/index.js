@@ -1,7 +1,27 @@
 const readlineSync = require('readline-sync');
-const attempts = readlineSync.question('How many attempts do you want to use in the game? ');
-let quantityOfNumbers = +readlineSync.question('Choose the quantity of symbols in the number (from 3 to 6) ')
 let rightNumber = '';
+
+function getAttemptsCount() {
+  let attempts = readlineSync.question('How many attempts do you want to use in the game? ');
+  if (isNaN(+attempts)) {
+    console.log('Attempts must be a number');
+    attempts = getAttemptsCount()
+  }
+  return attempts
+} 
+
+function getQuantityOfNumbers() {
+  let quantityOfNumbers = +readlineSync.question('Choose the quantity of symbols in the number (from 3 to 6) ')
+  if (isNaN(+quantityOfNumbers)) {
+    console.log('Quantity must be a number');
+    quantityOfNumbers = getQuantityOfNumbers()
+  }
+  if (+quantityOfNumbers < 3 || +quantityOfNumbers > 6) {
+    console.log('Quantity must be from 3 to 6');
+    quantityOfNumbers = getQuantityOfNumbers()
+  }
+  return quantityOfNumbers
+}
 
 function getRandomInt() {
   return Math.floor(Math.random() * 10);
@@ -16,6 +36,8 @@ function randomNumber(quantityOfNumbers) {
   }
 }
 
+let quantityOfNumbers = getQuantityOfNumbers()
+let attempts = getAttemptsCount()
 randomNumber(quantityOfNumbers)
 
 function getAttempts(attempts, rightNumber) {
